@@ -6,12 +6,6 @@
 package astar;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.FontMetrics;
-import java.awt.Insets;
-import java.awt.RenderingHints;
 import javax.swing.JPanel;
 
 import java.util.ArrayList;
@@ -43,104 +37,14 @@ public class GraphPanel extends JPanel
     ArrayList<Node> nodes = new ArrayList<>();
     ArrayList<Connection> connections = new ArrayList<>();
     
-    public GraphPanel()
-    {
-        setLayout(null);
-        Insets insets = getInsets();
-        
-        Node n;
-        start = n = new Node(this);
-        n.setBounds(5+insets.left, 5+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        n = new Node(this);
-        n.setBounds(100+insets.left, 60+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(0), nodes.get(1), 130);
-        
-        n = new Node(this);
-        n.setBounds(40+insets.left, 120+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(0), nodes.get(2), 135);
-        addConnection(nodes.get(1), nodes.get(2), 95);
-        
-        n = new Node(this);
-        n.setBounds(240+insets.left, 110+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(1), nodes.get(3), 135);
-        
-        n = new Node(this);
-        n.setBounds(100+insets.left, 200+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(2), nodes.get(4), 105);
-        
-        n = new Node(this);
-        n.setBounds(140+insets.left, 360+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(4), nodes.get(5), 170);
-        addConnection(nodes.get(3), nodes.get(5), 200);
-        
-        n = new Node(this);
-        n.setBounds(95+insets.left, 5+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(0), nodes.get(6), 70);
-        
-        n = new Node(this);
-        n.setBounds(240+insets.left, 50+insets.top, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(6), nodes.get(7), 90);
-
-        end = n = new Node(this);
-        n.setBounds(insets.left+450, insets.top+420, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        n = new Node(this);
-        n.setBounds(insets.left+450, insets.top+220, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(7), nodes.get(9), 250);
-        
-        n = new Node(this);
-        n.setBounds(insets.left+350, insets.top+220, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        addConnection(nodes.get(3), nodes.get(10), 150);
-        addConnection(nodes.get(5), nodes.get(10), 250);
-        
-        n = new Node(this);
-        n.setBounds(insets.left+350, insets.top+320, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(10), nodes.get(11), 110);
-        
-        n = new Node(this);
-        n.setBounds(insets.left+270, insets.top+365, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(5), nodes.get(12), 130);
-        addConnection(nodes.get(11), nodes.get(8), 150);
-        addConnection(nodes.get(12), nodes.get(8), 190);
-        
-        n = new Node(this);
-        n.setBounds(insets.left+5, insets.top+420, NODE_WIDTH, NODE_WIDTH);
-        add(n);
-        
-        addConnection(nodes.get(0), nodes.get(13), 415);
-        addConnection(nodes.get(13), nodes.get(8), 455);
-        
-    }
-    
     private void animationWait()
     {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ex) {
+        try
+        {
+            Thread.sleep(250);
+        }
+        catch(InterruptedException ex)
+        {
             Logger.getLogger(GraphPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -151,7 +55,7 @@ public class GraphPanel extends JPanel
         MinPriorityQueue<Node> toVisit = new MinPriorityQueue<>(new Node.Comparator());
         
         start.g = 0;
-        start.h = euclideanDistance(start, end);
+        start.h = heuristicDistance(start, end);
         start.f = start.h;
         start.setText(String.format("%.0f", start.f));
         toVisit.enqueue(start);
@@ -170,21 +74,26 @@ public class GraphPanel extends JPanel
                 break;
             }
             
-            for(int i = 0; i < current.connections.size(); ++i)
+            for(Connection conn : current.connections)
             {
-                Connection conn = current.connections.get(i);
                 Node successor = current.getAdjFromConn(conn);
-                
                 if(visited.contains(successor))
                     continue;
                 
                 double newG = current.g + conn.weight;
-                double newH = euclideanDistance(successor, end);
+                double newH = heuristicDistance(successor, end);
                 double newF = newG + newH;
                 
-                if(Double.isNaN(successor.f) || newF < successor.f)
+                //Not completely sure if 'g'-value should be used to judge which
+                //path to the successor node is better, however, intuitively
+                //'g'-value should be more important than 'f'-value
+                if(newG < successor.g)
                 {
-                    if(!Double.isNaN(successor.f))
+                    //This is an inefficient solution which runs in O(n) and a
+                    //more efficient solution is out of context for this project...
+                    //One possible efficient solution is to keep track of nodes in
+                    //min heap and reduce its key and reheapify only from that point
+                    if(!Double.isInfinite(successor.f))
                         toVisit.heap.remove(successor);
                 
                     successor.p = current;
@@ -214,9 +123,15 @@ public class GraphPanel extends JPanel
                 c = c.p;
             }
         }
+        
+        //Reset transient values so that next call to aStarSearch is not affected
+        for(Node n : visited)
+            n.resetTransientValues();
+        for(int i = 1; i < toVisit.heap.values.size(); ++i)
+            toVisit.heap.values.get(i).resetTransientValues();
     }
     
-    public final void addConnection(Node n1, Node n2, int w)
+    public final void addConnection(Node n1, Node n2, double w)
     {
         Connection conn = new Connection(n1, n2, w);
         connections.add(conn);
@@ -224,55 +139,17 @@ public class GraphPanel extends JPanel
         n2.connections.add(conn);
     }
     
-    public double euclideanDistance(Node n1, Node n2)
+    public double heuristicDistance(Node n1, Node n2)
     {
+        //EUCLIDEAN DISTANCE
         int x1 = n1.getBounds().x + n1.getBounds().width/2;
         int y1 = n1.getBounds().y + n1.getBounds().height/2;
         int x2 = n2.getBounds().x + n2.getBounds().width/2;
         int y2 = n2.getBounds().y + n2.getBounds().height/2;
-        return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+        return heuristicDistance(x1, y1, x2, y2);
     }
-    
-    @Override
-    protected void paintComponent(Graphics g)
+    public double heuristicDistance(int x1, int y1, int x2, int y2)
     {
-        super.paintComponent(g);
-        
-        Font f = new Font("Arial", Font.PLAIN, 10);
-        g.setFont(f);
-        
-        Graphics2D g2 = (Graphics2D)g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        for(Connection c : connections)
-        {
-            int x1 = c.n1.getBounds().x + c.n1.getBounds().width/2;
-            int y1 = c.n1.getBounds().y + c.n1.getBounds().height/2;
-            int x2 = c.n2.getBounds().x + c.n2.getBounds().width/2;
-            int y2 = c.n2.getBounds().y + c.n2.getBounds().height/2;
-            
-            double euclideanDist = Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
-            
-            g2.drawLine(x1, y1, x2, y2);
-            
-            int centerX = x1 + ((x2-x1)/2);
-            int centerY = y1 + ((y2-y1)/2);
-
-            //get the angle in degrees
-            double deg = Math.toDegrees(Math.atan2(centerY - y2, centerX - x2)+ Math.PI);
-            //need this in order to flip the text to be more readable within angles 90<deg<270
-            if(deg>90 && deg<270)
-                deg += 180;
-            double angle = Math.toRadians(deg);
-
-            String text = String.format("w%.0f,d%.0f", c.weight, euclideanDist);
-            FontMetrics fm = g2.getFontMetrics(f);
-            int sw =  fm.stringWidth(text);
-
-            g2.rotate(angle, centerX, centerY);
-            g2.drawString(text, centerX - (sw/2), centerY - 2);
-            g2.rotate(-angle, centerX, centerY);
-        }
-        g2.dispose();
+        return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
     }
 }

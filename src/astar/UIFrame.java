@@ -5,7 +5,10 @@
  */
 package astar;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -14,15 +17,18 @@ import javax.swing.JFrame;
 
 public class UIFrame extends JFrame
 {
-    GraphPanel panel = new GraphPanel();
+    public static final int FRAME_WIDTH = 500;
+    public static final int FRAME_HEIGHT = 500;
+    
+    CustomGraph panel = new CustomGraph();
     
     public UIFrame()
     {
-        super("UIFrame");
-        setSize(500, 500);
+        super("A* Search Demonstration");
+        setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        add(panel);    
+        add(panel);
         setVisible(true);
         
         panel.aStarSearch();
