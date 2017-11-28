@@ -15,8 +15,8 @@ public class GridGraph extends GraphPanel
 {
     public GridGraph()
     {
-        int rows = UIFrame.FRAME_HEIGHT / NODE_WIDTH;
-        int cols = UIFrame.FRAME_WIDTH / NODE_WIDTH;
+        int rows = UIFrame.GRAPH_HEIGHT / NODE_WIDTH;
+        int cols = UIFrame.GRAPH_WIDTH / NODE_WIDTH;
         setLayout(new GridLayout(rows, cols));
         
         //Temporarily create a 2D array just for ease of creating connections
@@ -35,6 +35,9 @@ public class GridGraph extends GraphPanel
         
         start = grid[0][0];
         end = grid[rows-1][cols-1];
+        
+        start.setText("S");
+        end.setText("E");
         
         //Add connections
         for(int row = 0; row < rows; ++row)

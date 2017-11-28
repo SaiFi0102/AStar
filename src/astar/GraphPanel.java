@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,16 +33,32 @@ public class GraphPanel extends JPanel
     }
     
     final int NODE_WIDTH = 30;
+    final int ANIMATION_SLEEP = 50;
+    final int FINISHED_WAIT_SLEEP = 2000;
+    final int POLL_STEP_SLEEP = 10;
+    
     Node start = null;
     Node end = null;
     ArrayList<Node> nodes = new ArrayList<>();
     ArrayList<Connection> connections = new ArrayList<>();
     
+    boolean stepByStep = false;
+    boolean run = false;
+    boolean running = false;
+    
     private void animationWait()
     {
+        if(!running)
+            return;
+        
         try
         {
-            Thread.sleep(250);
+            if(!stepByStep)
+                Thread.sleep(ANIMATION_SLEEP);
+            
+            run = false;
+            while(stepByStep && !run)
+                Thread.sleep(POLL_STEP_SLEEP);
         }
         catch(InterruptedException ex)
         {
@@ -51,6 +68,27 @@ public class GraphPanel extends JPanel
     
     public void aStarSearch()
     {
+        if(running)
+        {
+            if(stepByStep)
+                run = true;
+        }
+        else
+        {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() { _aStarSearch(); }
+            });
+        }
+    }
+    private void _aStarSearch()
+    {
+        running = true;
+        
+        //Reset nodes
+        for(Node n : nodes)
+            n.reset();
+        
         HashSet<Node> visited = new HashSet<>();
         MinPriorityQueue<Node> toVisit = new MinPriorityQueue<>(new Node.Comparator());
         
@@ -77,22 +115,20 @@ public class GraphPanel extends JPanel
             for(Connection conn : current.connections)
             {
                 Node successor = current.getAdjFromConn(conn);
-                if(visited.contains(successor))
+                if(!successor.traversable || visited.contains(successor))
                     continue;
                 
                 double newG = current.g + conn.weight;
                 double newH = heuristicDistance(successor, end);
                 double newF = newG + newH;
                 
-                //Not completely sure if 'g'-value should be used to judge which
-                //path to the successor node is better, however, intuitively
-                //'g'-value should be more important than 'f'-value
                 if(newG < successor.g)
                 {
                     //This is an inefficient solution which runs in O(n) and a
                     //more efficient solution is out of context for this project...
                     //One possible efficient solution is to keep track of nodes in
                     //min heap and reduce its key and reheapify only from that point
+                    //insteading of calling remove
                     if(!Double.isInfinite(successor.f))
                         toVisit.heap.remove(successor);
                 
@@ -124,11 +160,15 @@ public class GraphPanel extends JPanel
             }
         }
         
-        //Reset transient values so that next call to aStarSearch is not affected
-        for(Node n : visited)
-            n.resetTransientValues();
-        for(int i = 1; i < toVisit.heap.values.size(); ++i)
-            toVisit.heap.values.get(i).resetTransientValues();
+        try
+        {
+            Thread.sleep(FINISHED_WAIT_SLEEP);
+        }
+        catch(InterruptedException ex)
+        {
+            Logger.getLogger(GraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        running = false;
     }
     
     public final void addConnection(Node n1, Node n2, double w)
@@ -151,5 +191,19 @@ public class GraphPanel extends JPanel
     public double heuristicDistance(int x1, int y1, int x2, int y2)
     {
         return Math.sqrt(Math.pow(x1-x2, 2) + Math.pow(y1-y2, 2));
+    }
+    
+    public void setStepByStep(boolean v)
+    {
+        stepByStep = v;
+    }
+    
+    public void enableAllNodes()
+    {
+        for(Node n : nodes)
+        {
+            n.setTraversable(true);
+            n.reset();
+        }
     }
 }

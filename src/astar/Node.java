@@ -5,6 +5,8 @@
  */
 package astar;
 
+import java.awt.Color;
+import java.awt.Font;
 import javax.swing.JButton;
 import java.util.ArrayList;
 import java.awt.Insets;
@@ -29,12 +31,35 @@ public class Node extends JButton
     double g = Double.POSITIVE_INFINITY;
     double h = Double.POSITIVE_INFINITY;
     double f = Double.POSITIVE_INFINITY;
+    boolean traversable = true;
     
     public Node(GraphPanel panel)
     {
+        setFont(new Font(getFont().getFontName(), Font.PLAIN, 10));
         setMargin(new Insets(0, 0, 0, 0));
         //setText(String.valueOf(panel.nodes.size()));
         panel.nodes.add(this);
+        
+        addActionListener(e->toggleTraversable());
+    }
+    
+    public void toggleTraversable()
+    {
+        traversable = !traversable;
+        setTraversableBackground();
+    }
+    public void setTraversable(boolean v)
+    {
+        traversable = v;
+        setTraversableBackground();
+    }
+    
+    private void setTraversableBackground()
+    {
+        if(traversable)
+            setBackground(null);
+        else
+            setBackground(Color.BLACK);
     }
 
     public Node getAdjFromConn(GraphPanel.Connection c)
@@ -45,13 +70,15 @@ public class Node extends JButton
             return c.n1;
     }
     
-    public void resetTransientValues()
+    public void reset()
     {
-        //A more efficient but less understandable way would be simply to reset
-        //g-value which is compared before updating the transient values
         p = null;
         g = Double.POSITIVE_INFINITY;
         h = Double.POSITIVE_INFINITY;
         f = Double.POSITIVE_INFINITY;
+        
+        setTraversableBackground();
+        
+        setText(null);
     }
 }
