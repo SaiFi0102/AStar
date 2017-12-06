@@ -25,77 +25,77 @@ public class CustomGraph extends GraphPanel
         
         Node n;
         start = n = new Node(this);
-        n.setBounds(5+insets.left, 5+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(5+insets.left, 5+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         n = new Node(this);
-        n.setBounds(100+insets.left, 60+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(100+insets.left, 60+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(0), nodes.get(1), 130);
         
         n = new Node(this);
-        n.setBounds(40+insets.left, 120+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(40+insets.left, 120+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(0), nodes.get(2), 135);
         addConnection(nodes.get(1), nodes.get(2), 95);
         
         n = new Node(this);
-        n.setBounds(240+insets.left, 110+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(240+insets.left, 110+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(1), nodes.get(3), 135);
         
         n = new Node(this);
-        n.setBounds(100+insets.left, 200+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(100+insets.left, 200+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(2), nodes.get(4), 105);
         
         n = new Node(this);
-        n.setBounds(140+insets.left, 360+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(140+insets.left, 360+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(4), nodes.get(5), 170);
         addConnection(nodes.get(3), nodes.get(5), 200);
         
         n = new Node(this);
-        n.setBounds(95+insets.left, 5+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(95+insets.left, 5+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(0), nodes.get(6), 70);
         
         n = new Node(this);
-        n.setBounds(240+insets.left, 50+insets.top, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(240+insets.left, 50+insets.top, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(6), nodes.get(7), 90);
 
         end = n = new Node(this);
-        n.setBounds(insets.left+450, insets.top+420, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+450, insets.top+420, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         n = new Node(this);
-        n.setBounds(insets.left+450, insets.top+220, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+450, insets.top+220, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(7), nodes.get(9), 250);
         
         n = new Node(this);
-        n.setBounds(insets.left+350, insets.top+220, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+350, insets.top+220, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         addConnection(nodes.get(3), nodes.get(10), 150);
         addConnection(nodes.get(5), nodes.get(10), 250);
         
         n = new Node(this);
-        n.setBounds(insets.left+350, insets.top+320, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+350, insets.top+320, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(10), nodes.get(11), 110);
         
         n = new Node(this);
-        n.setBounds(insets.left+270, insets.top+365, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+270, insets.top+365, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(5), nodes.get(12), 130);
@@ -103,7 +103,7 @@ public class CustomGraph extends GraphPanel
         addConnection(nodes.get(12), nodes.get(8), 190);
         
         n = new Node(this);
-        n.setBounds(insets.left+5, insets.top+420, NODE_WIDTH, NODE_WIDTH);
+        n.setBounds(insets.left+5, insets.top+420, AStar.NODE_WIDTH, AStar.NODE_WIDTH);
         add(n);
         
         addConnection(nodes.get(0), nodes.get(13), 415);
@@ -115,7 +115,7 @@ public class CustomGraph extends GraphPanel
     {
         super.paintComponent(g);
         
-        Font f = new Font("Arial", Font.PLAIN, 10);
+        Font f = new Font("Arial", Font.PLAIN, 12);
         g.setFont(f);
         
         Graphics2D g2 = (Graphics2D)g.create();
@@ -140,7 +140,7 @@ public class CustomGraph extends GraphPanel
                 deg += 180;
             double angle = Math.toRadians(deg);
 
-            double euclideanDist = heuristicDistance(x1, y1, x2, y2);
+            double euclideanDist = heuristicDistance(c.n1, c.n2);
             String text = String.format("w%.0f,d%.0f", c.weight, euclideanDist);
             FontMetrics fm = g2.getFontMetrics(f);
             int sw =  fm.stringWidth(text);

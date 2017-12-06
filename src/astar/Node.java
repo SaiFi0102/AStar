@@ -18,35 +18,36 @@ import java.awt.Insets;
 
 public class Node extends JButton
 {
+    //To compare Node using its f-Value
     public static class Comparator implements java.util.Comparator<Node>
     {
         @Override
         public int compare(Node n1, Node n2) { return Double.compare(n1.f, n2.f); }
     }
     
-    ArrayList<GraphPanel.Connection> connections = new ArrayList<>();
+    ArrayList<GraphPanel.Connection> connections = new ArrayList<>(); //Adjacency List
+    boolean traversable = true;
     
     //Transient varables
     Node p = null;
     double g = Double.POSITIVE_INFINITY;
     double h = Double.POSITIVE_INFINITY;
     double f = Double.POSITIVE_INFINITY;
-    boolean traversable = true;
     
     public Node(GraphPanel panel)
     {
         setFont(new Font(getFont().getFontName(), Font.PLAIN, 10));
         setMargin(new Insets(0, 0, 0, 0));
-        //setText(String.valueOf(panel.nodes.size()));
+        
         panel.nodes.add(this);
         
+        //Add click listener to enable/disable the node
         addActionListener(e->toggleTraversable());
     }
     
     public void toggleTraversable()
     {
-        traversable = !traversable;
-        setTraversableBackground();
+        setTraversable(!traversable);
     }
     public void setTraversable(boolean v)
     {
@@ -62,7 +63,7 @@ public class Node extends JButton
             setBackground(Color.BLACK);
     }
 
-    public Node getAdjFromConn(GraphPanel.Connection c)
+    public Node getSuccessorFromConn(GraphPanel.Connection c)
     {
         if(c.n1 == this)
             return c.n2;
@@ -78,7 +79,6 @@ public class Node extends JButton
         f = Double.POSITIVE_INFINITY;
         
         setTraversableBackground();
-        
         setText(null);
     }
 }

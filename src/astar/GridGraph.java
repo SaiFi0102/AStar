@@ -13,19 +13,16 @@ import java.awt.GridLayout;
  */
 public class GridGraph extends GraphPanel
 {
+    Node grid[][] = new Node[AStar.GRID_ROWS][AStar.GIRD_COLUMNS];
+            
     public GridGraph()
     {
-        int rows = UIFrame.GRAPH_HEIGHT / NODE_WIDTH;
-        int cols = UIFrame.GRAPH_WIDTH / NODE_WIDTH;
-        setLayout(new GridLayout(rows, cols));
-        
-        //Temporarily create a 2D array just for ease of creating connections
-        Node grid[][] = new Node[rows][cols];
+        setLayout(new GridLayout(AStar.GRID_ROWS, AStar.GIRD_COLUMNS));
         
         //Add nodes
-        for(int row = 0; row < rows; ++row)
+        for(int row = 0; row < AStar.GRID_ROWS; ++row)
         {
-            for(int col = 0; col < cols; ++col)
+            for(int col = 0; col < AStar.GIRD_COLUMNS; ++col)
             {
                 Node n = new Node(this);
                 grid[row][col] = n;
@@ -34,41 +31,35 @@ public class GridGraph extends GraphPanel
         }
         
         start = grid[0][0];
-        end = grid[rows-1][cols-1];
+        end = grid[AStar.GRID_ROWS-1][AStar.GIRD_COLUMNS-1];
         
         start.setText("S");
         end.setText("E");
         
-        //Add connections
-        for(int row = 0; row < rows; ++row)
+        double adjDistance = AStar.NODE_WIDTH;
+        double diagDistance = Math.sqrt(2) * AStar.NODE_WIDTH;
+        for(int row = 0; row < AStar.GRID_ROWS; ++row)
         {
-            for(int col = 0; col < cols; ++col)
+            for(int col = 0; col < AStar.GIRD_COLUMNS; ++col)
             {
                 if(row != 0)
-                {
-                    addConnection(grid[row-1][col], grid[row][col], NODE_WIDTH);
-                    if(col != 0)
-                        addConnection(grid[row-1][col-1], grid[row][col], Math.sqrt(2*NODE_WIDTH));
-                }
-                if(row < rows-1)
-                {
-                    addConnection(grid[row+1][col], grid[row][col], NODE_WIDTH);
-                    if(col < cols-1)
-                        addConnection(grid[row+1][col+1], grid[row][col], Math.sqrt(2*NODE_WIDTH));
-                }
+                    addConnection(grid[row-1][col], grid[row][col], adjDistance);
+                if(row < AStar.GRID_ROWS-1)
+                    addConnection(grid[row+1][col], grid[row][col], adjDistance);
                 if(col != 0)
-                {
-                    addConnection(grid[row][col-1], grid[row][col], NODE_WIDTH);
-                    if(row != 0)
-                        addConnection(grid[row-1][col-1], grid[row][col], Math.sqrt(2*NODE_WIDTH));
-                }
-                if(col < cols-1)
-                {
-                    addConnection(grid[row][col+1], grid[row][col], NODE_WIDTH);
-                    if(rows < rows-1)
-                        addConnection(grid[row+1][col+1], grid[row][col], Math.sqrt(2*NODE_WIDTH));
-                }
+                    addConnection(grid[row][col-1], grid[row][col], adjDistance);
+                if(col < AStar.GIRD_COLUMNS-1)
+                    addConnection(grid[row][col+1], grid[row][col], adjDistance);
+
+                if(row != 0 && col != 0)
+                    addConnection(grid[row-1][col-1], grid[row][col], diagDistance);
+                if(row != 0 && col < AStar.GIRD_COLUMNS-1)
+                    addConnection(grid[row-1][col+1], grid[row][col], diagDistance);
+                if(row < AStar.GRID_ROWS-1 && col < AStar.GIRD_COLUMNS-1)
+                    addConnection(grid[row+1][col+1], grid[row][col], diagDistance);
+                if(row < AStar.GRID_ROWS-1 && col != 0)
+                    addConnection(grid[row+1][col-1], grid[row][col], diagDistance);
             }
         }
-    }   
+    }
 }
